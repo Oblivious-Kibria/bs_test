@@ -6,13 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.widget.ContentLoadingProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bs.androidtest.R
+import com.bs.androidtest.data.ApiResponse
 import com.bs.androidtest.data.Picture
+import com.bs.androidtest.data.Status
 import com.bs.androidtest.ui.adapters.GalleryAdapter
 import kotlinx.android.synthetic.main.fragment_gallery.view.*
 
@@ -21,12 +24,12 @@ class GalleryFragment : Fragment() {
 
     private lateinit var mAdapter: GalleryAdapter
     private lateinit var viewModel: MainViewModel
+    private var progressCircular: ContentLoadingProgressBar? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val parentView = inflater.inflate(R.layout.fragment_gallery, container, false)
-        Log.d("FragmentTest", "onCreateView");
-
+        progressCircular = parentView.progress_circular
         initViewModel()
         setAdapter(parentView)
 
@@ -37,7 +40,7 @@ class GalleryFragment : Fragment() {
     private fun initViewModel() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.getApiResponse().observe(requireActivity(), androidx.lifecycle.Observer {
-            resetAdapterData(it)
+            consumeResponse(it)
         })
         fetchPictureList()
     }
@@ -56,7 +59,6 @@ class GalleryFragment : Fragment() {
                 view.findNavController().navigate(R.id.action_gallery_fragment_to_picture_display_fragment, bundle)
             }
         })
-
         view.rvPictureList.apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
             itemAnimator = DefaultItemAnimator()
@@ -65,9 +67,32 @@ class GalleryFragment : Fragment() {
     }
 
 
-    private fun resetAdapterData(dataList: List<Picture>) {
-        mAdapter.submitListData(dataList)
+    private fun consumeResponse(apiResponse: ApiResponse) {
+        Log.d("ApiTesting", "consumeResponse")
+        when (apiResponse.status) {
+            Status.LOADING -> {
+                showProgressBar()
+            }
+            Status.SUCCESS -> {
+                hideProgressBar()
+                val list = apiResponse.data as List<Picture>
+                mAdapter.submitListData(list)
+            }
+
+            Status.FAILED, Status.ERROR -> {
+                hideProgressBar()
+            }
+        }
     }
 
+
+    private fun showProgressBar() {
+        progressCircular?.visibility = View.VISIBLE
+    }
+
+
+    private fun hideProgressBar() {
+        progressCircular?.visibility = View.GONE
+    }
 
 }

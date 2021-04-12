@@ -4,13 +4,13 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bs.androidtest.data.ApiResponse
-import com.bs.androidtest.data.PictureListResponse
 import com.bs.androidtest.networking.PictureRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+class MainViewModel @Inject constructor(private val pictureRepository: PictureRepository) : ViewModel() {
 
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private val mutableLiveData: MutableLiveData<ApiResponse> = MutableLiveData<ApiResponse>()
@@ -18,7 +18,7 @@ class MainViewModel : ViewModel() {
 
     fun dispatchPictureListRequest() {
         compositeDisposable.add(
-                PictureRepository.requestPictureList(
+                pictureRepository.requestPictureList(
                         1, 100
                 )
                         .subscribeOn(Schedulers.io())

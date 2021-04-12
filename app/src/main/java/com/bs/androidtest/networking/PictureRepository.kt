@@ -2,15 +2,16 @@ package com.bs.androidtest.networking
 
 import com.bs.androidtest.data.PictureListResponse
 import io.reactivex.Observable
+import javax.inject.Inject
 
 
-object PictureRepository {
+class PictureRepository @Inject constructor(private val apiService: ApiService) {
 
     fun requestPictureList(
         page: Int,
         limit: Int
     ): Observable<PictureListResponse> {
-        return RetrofitClient.apiService.executePictureListRequest(
+        return apiService.executePictureListRequest(
             page,
             limit
         )

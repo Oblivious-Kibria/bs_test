@@ -1,4 +1,4 @@
-package com.bs.androidtest.ui
+package com.bs.androidtest.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -16,37 +16,44 @@ import com.bs.androidtest.R
 import com.bs.androidtest.data.ApiResponse
 import com.bs.androidtest.data.Picture
 import com.bs.androidtest.data.Status
+import com.bs.androidtest.di.MyApplication
+import com.bs.androidtest.ui.MainViewModel
 import com.bs.androidtest.ui.adapters.GalleryAdapter
 import kotlinx.android.synthetic.main.fragment_gallery.view.*
+import javax.inject.Inject
 
 
 class GalleryFragment : Fragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var mAdapter: GalleryAdapter
-    private lateinit var viewModel: MainViewModel
+
     private var progressCircular: ContentLoadingProgressBar? = null
+
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (requireActivity().application as MyApplication).appComponent.injectFragment(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val parentView = inflater.inflate(R.layout.fragment_gallery, container, false)
         progressCircular = parentView.progress_circular
-        initViewModel()
         setAdapter(parentView)
-
+        fetchPictureList()
         return parentView
     }
 
 
-    private fun initViewModel() {
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
+    private fun fetchPictureList() {
         viewModel.getApiResponse().observe(requireActivity(), androidx.lifecycle.Observer {
             consumeResponse(it)
         })
-        fetchPictureList()
-    }
-
-
-    private fun fetchPictureList() {
         viewModel.dispatchPictureListRequest()
     }
 

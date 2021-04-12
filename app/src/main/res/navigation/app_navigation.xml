@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/gallery_fragment"
-        android:name="com.bs.androidtest.ui.GalleryFragment"
+        android:name="com.bs.androidtest.ui.fragments.GalleryFragment"
         android:label="Gallery"
         tools:layout="@layout/fragment_gallery">
 
@@ -30,7 +30,7 @@
 
     <fragment
         android:id="@+id/picture_details"
-        android:name="com.bs.androidtest.ui.PictureDisplayFragment"
+        android:name="com.bs.androidtest.ui.fragments.PictureDisplayFragment"
         android:label="Display"
         tools:layout="@layout/fragment_picture_display">
 
